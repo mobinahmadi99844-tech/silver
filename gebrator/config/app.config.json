@@ -1,0 +1,62 @@
+{
+  "bot_meta": {
+    "name": "ImageSmith",
+    "description": "Telegram bot for prompt-to-image with fast inline keyboard and pro features.",
+    "default_language": "fa",
+    "supported_languages": ["fa", "en"],
+    "privacy": "No training on user data. Store minimal metadata for quotas and payments."
+  },
+  "security": {
+    "allowed_chats": "all",
+    "admin_ids": ["6041119040"],
+    "blocklist_keywords": ["violence_extreme", "sexual_minor", "hate_symbols"],
+    "nsfw_policy": "block_and_warn",
+    "rate_limit": {
+      "per_user_per_minute": 6,
+      "per_chat_per_minute": 10
+    }
+  },
+  "logging": {
+    "level": "info",
+    "store_prompts": "hash_only",
+    "store_images": "temporary",
+    "retention_days": 7
+  },
+  "image_api": {
+    "provider": "nano-banana",
+    "api_base": "https://api.nanobananaapi.ai/api/v1/nanobanana",
+    "endpoint": "/generate",
+    "alt_endpoints": ["/generate", "/image/generate", "/images", "/images/generate"],
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "request_schema": {
+      "model": "nano-banana-image-latest",
+      "prompt": "<STRING_REQUIRED>",
+      "negative_prompt": "<STRING_OPTIONAL>",
+      "width": 1024,
+      "height": 1024,
+      "steps": 28,
+      "guidance": 7.5,
+      "seed": "<INT_OPTIONAL>",
+      "style": "<STRING_OPTIONAL>",
+      "n": 1,
+      "response_format": "url",
+      "type": "TEXTTOIAMGE"
+    },
+    "response_schema": {
+      "ok": "<BOOL>",
+      "images": [
+        {
+          "url": "<STRING_OR_NULL>",
+          "base64": "<STRING_OR_NULL>",
+          "meta": { "seed": "<INT>", "inference_time_ms": "<INT>" }
+        }
+      ],
+      "error": "<STRING_OR_NULL>"
+    },
+    "timeouts": { "connect_ms": 5000, "read_ms": 120000 },
+    "retry_policy": { "retries": 2, "backoff_ms": 1500 }
+  }
+}
