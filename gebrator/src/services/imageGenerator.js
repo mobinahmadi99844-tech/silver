@@ -132,7 +132,11 @@ async function generateImage(cfg, { prompt, negative_prompt, width, height, step
     }
     // مسیر اختصاصی نانو‌بانانا: آدرس تصویر در data.info.resultImageUrl
     if (data?.data?.info?.resultImageUrl) {
-      return [{ url: data.data.info.resultImageUrl }];
+    return [{ url: data.data.info.resultImageUrl }];
+    }
+
+   if (data?.response?.resultImageUrl) {
+    return [{ url: data.response.resultImageUrl }];
     }
     // هیچ چیزی پیدا نشد
     return [];
