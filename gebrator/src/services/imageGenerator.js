@@ -69,7 +69,7 @@ async function generateImage(cfg, { prompt, negative_prompt, width, height, step
   const isNanoBanana = String(cfg.image_api?.provider || '').toLowerCase().includes('nano-banana');
   const body = isNanoBanana ? {
     prompt,
-    type: defaults.type || 'TEXTTOIAMGE',
+    type: defaults.type || 'TEXTTOIMAGE',
     numImages: n ?? defaults.n ?? 1,
     // callBackUrl, watermark, imageUrls اختیاری هستند؛ فعلاً استفاده نمی‌کنیم
   } : {
