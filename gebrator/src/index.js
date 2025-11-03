@@ -115,23 +115,47 @@ function main() {
       const { prompt: userPrompt, negative } = parseUserText(raw);
       const composed = `${userPrompt}`.trim();
       const dims = dimsFromSize(prefs.size);
-      const result = await generateImage(cfg, {
-        prompt: composed,
-        negative_prompt: negative,
-        width: dims.width,
-        height: dims.height,
-        response_format: prefs.response_format,
-      });
-      const caption = `✅ آماده شد | مدل: nano-banana`;
-      // ترجیح ارسال باینری: اگر base64 موجود است، اول آن را ارسال کن
-      if (result.base64) {
-        const buf = Buffer.from(result.base64, 'base64');
-        await ctx.replyWithPhoto({ source: buf }, { caption });
-      } else if (result.url) {
-        await ctx.replyWithPhoto(result.url, { caption });
-      } else {
-        await ctx.reply('پاسخی از سرویس تصویر دریافت نشد. لطفاً دوباره تلاش کنید.');
-      }
+      // ... بعد از دریافت نتیجه از generateImage:
+      const result = await generateImage(cfg, { prompt, n: 1 });
+
+     // حالت 1: base64 آماده
+    if (result?.base64) {
+    const buf = Buffer.from(result.base64, 'base64');
+    await ctx.replyWithPhoto({ source: buf, filename: 'image.png' }, { caption: '✅ تصویر آماده شد.' });
+    return;
+   }
+
+    // حالت 2: URL
+   if (result?.url) {
+  // 2-1) تمیز کردن URL
+  const rawUrl = String(result.url).trim().replace(/^"+|"+$/g, '');
+  console.log('[img-bot] sending image url:', rawUrl);
+
+  // 2-2) اعتبارسنجی اولیه
+  if (!/^https?:\/\/.+/i.test(rawUrl)) {
+    throw new Error('Bad image URL: "${rawUrl}"');
+  }
+
+  try {
+    // تلاش اول: ارسال مستقیم URL
+    await ctx.replyWithPhoto(rawUrl, { caption: '✅ تصویر آماده شد.' });
+    return;
+  } catch (e) {
+    console.warn('[img-bot] send by URL failed, will download & upload. err=', e?.message || e);
+    // تلاش دوم: دانلود و ارسال به‌صورت فایل
+    try {
+      const axios = require('axios');
+      const resp = await axios.get(rawUrl, { responseType: 'arraybuffer' });
+      const buf = Buffer.from(resp.data);
+      await ctx.replyWithPhoto({ source: buf, filename: 'image.png' }, { caption: '✅ تصویر آماده شد.' });
+      return;
+    } catch (dlErr) {
+      console.error('[img-bot] download failed:', dlErr?.message || dlErr);
+      throw new Error('Failed to fetch image from URL');
+    }
+  }
+}
+
       const u = getUsage(userId); u.used += 1;
       storeLastJob(userId, { prompt: composed, negative, prefs: { ...prefs }, result });
     } catch (err) {
