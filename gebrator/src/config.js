@@ -14,7 +14,15 @@ function getConfig() {
     throw new Error('BOT_TOKEN is missing in .env');
   }
 
-  const appConfig = loadJson(path.join(__dirname, '..', 'config', 'app.config.json'));
+  {
+  "image_api": {
+    "provider": "nano-banana",
+    "api_base": "https://api.nanobananaapi.ai/api/v1/nanobanana",
+    "endpoint": "/generate",
+    "timeouts": { "read_ms": 300000 },
+    "retry_policy": { "retries": 5, "backoff_ms": 2000 }
+  }
+}
   return {
     token,
     ...appConfig
