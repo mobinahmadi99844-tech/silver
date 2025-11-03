@@ -132,11 +132,13 @@ async function generateImage(cfg, { prompt, negative_prompt, width, height, step
     }
     // مسیر اختصاصی نانو‌بانانا: آدرس تصویر در data.info.resultImageUrl
     if (data?.data?.info?.resultImageUrl) {
-    return [{ url: data.data.info.resultImageUrl }];
+      const u = data.data.info.resultImageUrl;
+      return [{ url: typeof u === 'string' ? u.trim() : (u?.url || null) }];
     }
 
-   if (data?.response?.resultImageUrl) {
-    return [{ url: data.response.resultImageUrl }];
+    if (data?.response?.resultImageUrl) {
+     const u = data.response.resultImageUrl;
+     return [{ url: typeof u === 'string' ? u.trim() : (u?.url || null) }];
     }
     // هیچ چیزی پیدا نشد
     return [];
@@ -157,14 +159,18 @@ async function generateImage(cfg, { prompt, negative_prompt, width, height, step
         const code = (data.code != null) ? Number(data.code) : (data.status != null ? Number(data.status) : undefined);
         const ok = data.ok === true || data.success === true || (code === 200 || code === 0) || images.length > 0;
         // اگر مستقیماً تصویر دریافت شد
-        if (ok && images.length > 0) {
-          const img = images[0] || {};
-          return {
-            url: img.url || null,
-            base64: img.base64 || null,
-            meta: img.meta || {},
-          };
-        }
+      if (ok && images.length > 0) {
+        const img = images[0] || {};
+        const cleanUrl =
+        typeof img.url === 'string'
+        ? img.url.trim()
+        : (img.url?.url || img.url?.href  null);
+        return {
+        url: cleanUrl,
+        base64: img.base64 || null,
+        meta: img.meta || {},
+      };
+    }
         const keys = Object.keys(data || {});
         const msg = data.msg || data.message || data.error || 'no message';
         console.warn('[img-api] No images in response:', JSON.stringify({ keys, msg }).slice(0, 500));
