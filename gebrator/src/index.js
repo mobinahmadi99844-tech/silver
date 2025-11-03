@@ -133,7 +133,7 @@ function main() {
 
   // 2-2) اعتبارسنجی اولیه
   if (!/^https?:\/\/.+/i.test(rawUrl)) {
-    throw new Error('Bad image URL: "${rawUrl}"');
+    throw new Error(`Bad image URL: "${rawUrl}"`);
   }
 
   try {
